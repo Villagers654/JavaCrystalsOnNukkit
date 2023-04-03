@@ -35,7 +35,23 @@ public class ExplosionEvents implements Listener {
     Level level = explodingEntity.getLevel();
     Location explosionLocation = explodingEntity.getLocation();
 
-    for (Player p : level.getPlayers().values()) {
+    for (Entity e : level.getEntities()) {
+      if (e instanceof EntityEndCrystal endCrystal) {
+        Location entityLocation = e.getLocation();
+        double distance = explosionLocation.distance(entityLocation);
+
+        if (distance > (double) EXPLOSION_RADIUS) {
+          continue;
+        }
+
+        endCrystal.explode();
+        continue;
+      }
+
+      if (!(e instanceof Player p)) {
+        return;
+      }
+
       Location playerLocation = p.getLocation();
       double distance = explosionLocation.distance(playerLocation);
 
@@ -48,14 +64,16 @@ public class ExplosionEvents implements Listener {
       Vector3 playerHead = playerLocation.add(0, 1.62, 0);
       double damage = calculateDamage(distance, p, playerLocation, playerHead, explosionLocation);
       EntityDamageByEntityEvent damageEvent =
-          new EntityDamageByEntityEvent(explodingEntity, p, EntityDamageByEntityEvent.DamageCause.ENTITY_EXPLOSION, (float) damage);
+          new EntityDamageByEntityEvent(explodingEntity, p,
+              EntityDamageByEntityEvent.DamageCause.ENTITY_EXPLOSION, (float) damage);
       level.getServer().getPluginManager().callEvent(damageEvent);
       if (!damageEvent.isCancelled()) {
         JavaCrystalsOnNukkit.LOGGER.info("Final calculated damage: " + damage);
 
         p.attack(damageEvent);
 
-        JavaCrystalsOnNukkit.LOGGER.info("Explosion calculated in " + (System.currentTimeMillis() - startTime) + "ms");
+        JavaCrystalsOnNukkit.LOGGER.info(
+            "Explosion calculated in " + (System.currentTimeMillis() - startTime) + "ms");
       }
     }
   }
@@ -85,11 +103,14 @@ public class ExplosionEvents implements Listener {
 
   public boolean isExposed(Player p, Vector3 position, Vector3 explosionLocation) {
     Vector3 direction = explosionLocation.subtract(position);
-    BlockIterator iterator = new BlockIterator(p.getLevel(), position.add(0.5, 0.5, 0.5), direction.normalize(), 0, (int) Math.ceil(direction.length()));
+    BlockIterator iterator =
+        new BlockIterator(p.getLevel(), position.add(0.5, 0.5, 0.5), direction.normalize(), 0,
+            (int) Math.ceil(direction.length()));
     while (iterator.hasNext()) {
       Block block = iterator.next();
       if (block.isSolid()) {
-        if (block.getLocation().distanceSquared(explosionLocation) < position.distanceSquared(explosionLocation)) {
+        if (block.getLocation().distanceSquared(explosionLocation) <
+            position.distanceSquared(explosionLocation)) {
           return false;
         }
       }
