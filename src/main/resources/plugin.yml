@@ -1,0 +1,5 @@
+name: JavaCrystalsOnNukkit
+main: club.aurorapvp.JavaCrystalsOnNukkit
+api: ["1.0.14"]
+version: '1.0.0'
+author: Villagers645

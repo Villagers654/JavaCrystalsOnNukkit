@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+}
+
+group 'JavaCrystalsOnNukkit'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://repo.opencollab.dev/maven-releases"
+    }
+    maven {
+        url "https://repo.opencollab.dev/maven-snapshots"
+    }
+}
+
+dependencies {
+    compileOnly 'cn.nukkit:nukkit:1.0-SNAPSHOT'
+}
+
+
+test {
+    useJUnitPlatform()
+}
