@@ -49,7 +49,7 @@ public class ExplosionEvents implements Listener {
       }
 
       if (!(e instanceof Player p)) {
-        return;
+        continue;
       }
 
       Location playerLocation = p.getLocation();
