@@ -1,6 +1,5 @@
 package club.aurorapvp.events.listeners;
 
-import club.aurorapvp.JavaCrystalsOnNukkit;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
@@ -15,6 +14,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BlockIterator;
+import java.util.List;
 
 public class ExplosionEvents implements Listener {
   private static final double HEAD_DAMAGE_MULTIPLIER = 0.17;
@@ -25,8 +25,6 @@ public class ExplosionEvents implements Listener {
 
   @EventHandler
   public void onEntityExplode(EntityExplodeEvent event) {
-    long startTime = System.currentTimeMillis();
-
     Entity explodingEntity = event.getEntity();
     if (!(explodingEntity instanceof EntityEndCrystal)) {
       return;
@@ -37,15 +35,7 @@ public class ExplosionEvents implements Listener {
     Level level = explodingEntity.getLevel();
     Location explosionLocation = explodingEntity.getLocation();
 
-    for (Block block : event.getBlockList()) {
-      Location blockLocation = block.getLocation();
-
-      Item[] drops = block.getDrops(Item.getCreativeItem(Item.AIR));
-      level.setBlock(blockLocation, Block.get(BlockID.AIR));
-      for (Item drop : drops) {
-        level.dropItem(blockLocation, drop);
-      }
-    }
+    breakBlocks(event.getBlockList(), level);
 
     for (Entity e : level.getEntities()) {
       if (e instanceof EntityEndCrystal endCrystal) {
@@ -71,21 +61,29 @@ public class ExplosionEvents implements Listener {
         continue;
       }
 
-      JavaCrystalsOnNukkit.LOGGER.info("Distance from explostion: " + distance);
-
       Vector3 playerHead = playerLocation.add(0, 1.62, 0);
+
       double damage = calculateDamage(distance, p, playerLocation, playerHead, explosionLocation);
+
       EntityDamageByEntityEvent damageEvent =
           new EntityDamageByEntityEvent(explodingEntity, p,
               EntityDamageByEntityEvent.DamageCause.ENTITY_EXPLOSION, (float) damage);
       level.getServer().getPluginManager().callEvent(damageEvent);
+
       if (!damageEvent.isCancelled()) {
-        JavaCrystalsOnNukkit.LOGGER.info("Final calculated damage: " + damage);
-
         p.attack(damageEvent);
+      }
+    }
+  }
 
-        JavaCrystalsOnNukkit.LOGGER.info(
-            "Explosion calculated in " + (System.currentTimeMillis() - startTime) + "ms");
+  public void breakBlocks(List<Block> blocks, Level level) {
+    for (Block block : blocks) {
+      Location blockLocation = block.getLocation();
+
+      Item[] drops = block.getDrops(Item.getCreativeItem(Item.AIR));
+      level.setBlock(blockLocation, Block.get(BlockID.AIR));
+      for (Item drop : drops) {
+        level.dropItem(blockLocation, drop);
       }
     }
   }
@@ -97,13 +95,10 @@ public class ExplosionEvents implements Listener {
 
     if (isExposed(p, playerFeet, explosionLocation)) {
       damage = distanceFactor * (MAX_DAMAGE - MIN_DAMAGE) + MIN_DAMAGE;
-      JavaCrystalsOnNukkit.LOGGER.info("Feet are exposed");
     } else if (isExposed(p, playerHead, explosionLocation)) {
       damage = distanceFactor * (MAX_DAMAGE - MIN_DAMAGE) * HEAD_DAMAGE_MULTIPLIER + MIN_DAMAGE;
-      JavaCrystalsOnNukkit.LOGGER.info("Head is exposed");
     } else {
       damage = 0;
-      JavaCrystalsOnNukkit.LOGGER.info("Not exposed");
     }
 
     if (p.isSneaking()) {
