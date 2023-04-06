@@ -9,7 +9,7 @@ public class InteractEvents implements Listener {
   @EventHandler
   public void onInteract(PlayerInteractEntityEvent event) {
     if (event.getEntity() instanceof EntityEndCrystal) {
-      if (event.getPlayer().hasEffect(18)) {
+      if (event.getPlayer().hasEffect(18) && !(event.getItem().isTool())) {
         event.setCancelled(true);
       }
     }
