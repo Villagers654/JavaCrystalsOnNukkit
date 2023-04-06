@@ -3,12 +3,14 @@ package club.aurorapvp.events.listeners;
 import club.aurorapvp.JavaCrystalsOnNukkit;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockID;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityEndCrystal;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityExplodeEvent;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
@@ -30,10 +32,20 @@ public class ExplosionEvents implements Listener {
       return;
     }
 
-    event.setCancelled(true);
+    event.setYield(0);
 
     Level level = explodingEntity.getLevel();
     Location explosionLocation = explodingEntity.getLocation();
+
+    for (Block block : event.getBlockList()) {
+      Location blockLocation = block.getLocation();
+
+      Item[] drops = block.getDrops(Item.getCreativeItem(Item.AIR));
+      level.setBlock(blockLocation, Block.get(BlockID.AIR));
+      for (Item drop : drops) {
+        level.dropItem(blockLocation, drop);
+      }
+    }
 
     for (Entity e : level.getEntities()) {
       if (e instanceof EntityEndCrystal endCrystal) {
