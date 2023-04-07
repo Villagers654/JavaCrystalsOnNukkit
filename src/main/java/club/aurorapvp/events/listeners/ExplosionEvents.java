@@ -18,10 +18,13 @@ import cn.nukkit.utils.BlockIterator;
 import java.util.List;
 
 public class ExplosionEvents implements Listener {
-  private static final double HEAD_DAMAGE_MULTIPLIER = CustomConfig.getConfig().getDouble("damage.head-damage-multiplier");
+  private static final double HEAD_DAMAGE_MULTIPLIER =
+      CustomConfig.getConfig().getDouble("damage.head-damage-multiplier");
   private static final double MAX_DAMAGE = CustomConfig.getConfig().getDouble("damage.max-damage");
-  private static final double MIN_DAMAGE = CustomConfig.getConfig().getDouble("damage.min-damage");;
-  private static final double BLOCKING_REDUCTION_FACTOR = CustomConfig.getConfig().getDouble("damage.blocking-reduction-multiplier");
+  private static final double MIN_DAMAGE = CustomConfig.getConfig().getDouble("damage.min-damage");
+  ;
+  private static final double BLOCKING_REDUCTION_FACTOR =
+      CustomConfig.getConfig().getDouble("damage.blocking-reduction-multiplier");
   private static final int EXPLOSION_RADIUS = CustomConfig.getConfig().getInt("radius");
 
   @EventHandler
